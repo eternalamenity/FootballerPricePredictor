@@ -1,6 +1,8 @@
 # FootballerPricePredictor
 ## Getting Started
 
+Evaluates the value of football players based on his actual form, stats, age.
+
 We're currently in a development phase. All the info about building, installing and testing our software will be updated when we're done.
 
 ### Prerequisites
@@ -43,4 +45,4 @@ This project is licensed under the MIT License.
 ## Acknowledgments
 
 TBD
-Evaluates the value of football players based on his actual form, stats, age.
+
