@@ -7,8 +7,8 @@ Scrape TIERS_URLS to find all the urls of the teams that are within those tiers.
 import time
 import bs4
 
-import selenium_func as sel
-from helper_functions import save_to_file
+import externals.WebScrapper.selenium_func as sel
+from externals.WebScrapper.helper_functions import save_to_file
 
 """
 Path to store the complete list of teams' urls

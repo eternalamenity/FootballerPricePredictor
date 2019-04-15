@@ -444,7 +444,7 @@ def to_csv():
     with open('players_data/whoscored_data.txt', 'r') as f:
         append_to_csv(FEATURES, 'players_data/whoscored_data.csv')
         for line in f.readlines():
-            append_to_csv(ast.literal_eval(ast.literal_eval(line).values()[0]), 'players_data/whoscored_data.csv')
+            append_to_csv(ast.literal_eval(list(ast.literal_eval(line).values())[0]), 'players_data/whoscored_data.csv')
     
     
 if __name__ == "__main__":

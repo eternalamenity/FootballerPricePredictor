@@ -76,7 +76,7 @@ def process_info(info):
     except:
         processed = info
         pass
-    if isinstance(processed, unicode):
+    if isinstance(processed, str):
         processed = unidecode(processed)
         
     return processed

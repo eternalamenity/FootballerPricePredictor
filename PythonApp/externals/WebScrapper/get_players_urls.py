@@ -32,7 +32,7 @@ def get_players_urls(teams_path, players_path, logs_path, first_idx, second_idx)
     for tier_teams in all_tier_teams[first_idx:]:
         
         tier_teams_dict = ast.literal_eval(tier_teams)
-        teams = tier_teams_dict.values()[0]
+        teams = list(tier_teams_dict.values())[0]
         
         teams_len = len(teams)-1
         
@@ -116,7 +116,7 @@ def get_players_urls(teams_path, players_path, logs_path, first_idx, second_idx)
 
         
 if __name__ == "__main__":
-    get_players_urls(0, 0)
+    get_players_urls(TEAMS_PATH, PLAYERS_PATH, LOGS_PATH, 0, 0)
 
 
 

@@ -10981,3 +10981,18 @@ Index: 15, 206
 Successfully retrieved from:
 Tier: 0/455
 Teams: 0/0
+
+Error reading data from: /Teams/3458/Show/Albania-Skenderbeu
+
+Index: 0, 0
+Count: 10
+
+Error reading data from: /Teams/3458/Show/Albania-Skenderbeu
+
+Index: 0, 0
+Count: 9
+
+Error reading data from: /Teams/3458/Show/Albania-Skenderbeu
+
+Index: 0, 0
+Count: 8

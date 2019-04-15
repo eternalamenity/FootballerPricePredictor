@@ -20,7 +20,7 @@ Path where your web browser application is saved. This example is for MacOs, in 
 and 10, the path might be ‘C:\Program Files\Google\Chrome\Application’. Search Google if
 you don't know how to find your browser application's path.
 """
-PATH_TO_BROWSER = '/Applications/Google Chrome.app'
+PATH_TO_BROWSER = '/opt/google/chrome'
 """
 Whoscored URL
 """
