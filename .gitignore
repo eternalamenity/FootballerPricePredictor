@@ -6,8 +6,9 @@ __pycache__/
 # C extensions
 *.so
 
-# Corpus folder
+# Corpus
 Corpus/
+database.sqlite
 
 # Distribution / packaging
 .Python
