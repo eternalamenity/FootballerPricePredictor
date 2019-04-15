@@ -6,6 +6,9 @@ __pycache__/
 # C extensions
 *.so
 
+# Corpse folder
+/Corpus/
+
 # Distribution / packaging
 .Python
 build/
