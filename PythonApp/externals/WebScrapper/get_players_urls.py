@@ -5,13 +5,13 @@
 Scrape all the teams' urls to find the urls of the players within them.
 """
 
-import selenium_func as sel
+import externals.WebScrapper.selenium_func as sel
 
 import time
 import bs4
 import ast
 
-from helper_functions import read_from_file, append_to_file, process_info
+from externals.WebScrapper.helper_functions import read_from_file, append_to_file, process_info
 
 
 TEAMS_PATH = 'teams_urls/teams_urls.txt'

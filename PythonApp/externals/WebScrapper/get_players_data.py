@@ -5,12 +5,12 @@
 Scrapes all of the players' urls to get individual data from each one.
 """
 
-import selenium_func as sel
+import externals.WebScrapper.selenium_func as sel
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-from helper_functions import read_from_file, append_to_file, process_info, append_to_csv
+from externals.WebScrapper.helper_functions import read_from_file, append_to_file, process_info, append_to_csv
 
 import time
 import bs4
@@ -74,9 +74,20 @@ def get_players_data(first_idx, second_idx, players_urls, data, logs_path):
         item = teams_players[idx_1]
         
         item_dict = ast.literal_eval(item)
-                    
+
+        #HACK FOR PROJECT PURPOSE
+        top_leagues = ['Manchester City', 'Juventus']
+
         for team, players in item_dict.items(): #string with team name, list with players' urls
-            
+
+            isTeamFromTop = False
+            for t in top_leagues:
+                if t == team:
+                    isTeamFromTop = True
+
+            if isTeamFromTop == False:
+                continue
+
             players_len = len(players)-1
                     
             for idx_2 in range(second_idx, 1):

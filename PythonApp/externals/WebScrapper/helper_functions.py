@@ -7,7 +7,7 @@ Created on Sun Jun  3 15:47:27 2018
 """
 
 from unidecode import unidecode
-from urllib import unquote
+from urllib.parse import unquote
 
 """
 Request Headers for the GET Request
