@@ -106,3 +106,16 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+#WebScrapper Datasets
+PythonApp/externals/WebScrapper/players_data/*
+PythonApp/externals/WebScrapper/teams_urls/*
+**.csv
+**.txt
+**.xml
+
+#Chromedriver
+chromedriver
+chromedriver.exe
+
+

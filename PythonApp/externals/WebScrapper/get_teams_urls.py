@@ -11,9 +11,9 @@ import externals.WebScrapper.selenium_func as sel
 from externals.WebScrapper.helper_functions import read_from_file, append_to_file
 
 
-TIERS_PATH = 'tiers_urls/tiers_urls.txt'
-TEAMS_PATH = 'teams_urls/teams_urls.txt'
-TEAMS_LOGS = 'teams_urls/teams_logs.txt'
+TIERS_PATH = 'externals/WebScrapper/tiers_urls/tiers_urls.txt'
+TEAMS_PATH = 'externals/WebScrapper/teams_urls/teams_urls.txt'
+TEAMS_LOGS = 'externals/WebScrapper/teams_urls/teams_logs.txt'
 
 """
 Functions
