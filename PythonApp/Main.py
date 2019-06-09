@@ -1,4 +1,5 @@
 from pandas.plotting import scatter_matrix
+from sklearn.linear_model import LinearRegression
 
 import externals.WebScrapper.get_players_data as pld
 import externals.WebScrapper.get_teams_urls as tu
@@ -7,7 +8,21 @@ import pandas as pd
 import numpy as np
 from sklearn import preprocessing
 from sklearn.svm import SVC
+from sklearn import model_selection
+from sklearn.metrics import classification_report
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import accuracy_score
+from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from sklearn.naive_bayes import GaussianNB
+from sklearn.svm import SVC
+from sklearn import tree
+from sklearn.linear_model import Lasso
+from sklearn.linear_model import ElasticNet
 
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 
 def cleanData(data):
     data = data[data.SpG != "Undefined"]
@@ -103,6 +118,7 @@ def showScatter(data):
 
 #Individual changes for training dataset
 training_dataset = pd.read_csv('externals/TrainingDataset/CompleteDataset.csv')
+#training_dataset = training_dataset.replace('€123M', '€999M')
 training_dataset.rename(columns={'Preferred Positions': 'Position'}, inplace=True)
 training_dataset.rename(columns={'Heading accuracy': 'HeadingAccuracy'}, inplace=True)
 training_dataset.rename(columns={'Short passing': 'ShortPassing'}, inplace=True)
@@ -121,6 +137,8 @@ training_dataset.rename(columns={'GK positioning': 'GKPositioning'}, inplace=Tru
 training_dataset.rename(columns={'GK reflexes': 'GKReflexes'}, inplace=True)
 f = lambda x: (x["Position"].split()[0])
 training_dataset["Position"] = training_dataset.apply(f, axis=1)
+
+#training_dataset = training_dataset[training_dataset.Position == "ST"]
 training_dataset["Crossing"] = training_dataset["Crossing"].replace({'(\-[0-9])|(\+[0-9])':''}, regex = True)
 training_dataset["Finishing"] = training_dataset["Finishing"].replace({'(\-[0-9])|(\+[0-9])':''}, regex = True)
 training_dataset["HeadingAccuracy"] = training_dataset["HeadingAccuracy"].replace({'(\-[0-9])|(\+[0-9])':''}, regex = True)
@@ -159,8 +177,11 @@ training_dataset["Value"] = training_dataset["Value"].replace({'\.[0-9]':''}, re
 training_dataset["Value"] = training_dataset["Value"].replace({'K':'000'}, regex = True)
 training_dataset["Value"] = training_dataset["Value"].replace({'M':'000000'}, regex = True)
 training_dataset["Value"] = training_dataset["Value"].replace({'\€':''}, regex = True)
+training_dataset.drop(training_dataset[training_dataset["Value"] == 0].index, inplace = True)
+
+#df.drop(df[df['Age'] < 25].index, inplace = True)
 #Get only Players Market Values
-players_values = training_dataset["Value"]
+players_values = training_dataset["Value"].to_list()
 
 #Individual changes for testing dataset
 testing_dataset = pd.read_csv('externals/data.csv')
@@ -260,6 +281,8 @@ training_dataset = training_dataset.drop(columns="CB")
 training_dataset = training_dataset.drop(columns="RB")
 training_dataset = training_dataset.drop(columns="RCB")
 training_dataset = training_dataset[['Age', 'Overall', 'Potential', 'Special', 'Crossing', 'Finishing', 'HeadingAccuracy', 'ShortPassing', 'Volleys', 'Dribbling', 'Curve', 'FKAccuracy', 'LongPassing', 'BallControl', 'Acceleration', 'SprintSpeed', 'Agility', 'Reactions', 'Balance', 'ShotPower', 'Jumping', 'Stamina', 'Strength', 'LongShots', 'Aggression', 'Interceptions', 'Positioning', 'Vision', 'Penalties', 'Composure', 'Marking', 'StandingTackle', 'SlidingTackle', 'GKDiving', 'GKHandling', 'GKKicking', 'GKPositioning', 'GKReflexes']]
+testing_dataset = testing_dataset[['Age', 'Overall', 'Potential', 'Special', 'Crossing', 'Finishing', 'HeadingAccuracy', 'ShortPassing', 'Volleys', 'Dribbling', 'Curve', 'FKAccuracy', 'LongPassing', 'BallControl', 'Acceleration', 'SprintSpeed', 'Agility', 'Reactions', 'Balance', 'ShotPower', 'Jumping', 'Stamina', 'Strength', 'LongShots', 'Aggression', 'Interceptions', 'Positioning', 'Vision', 'Penalties', 'Composure', 'Marking', 'StandingTackle', 'SlidingTackle', 'GKDiving', 'GKHandling', 'GKKicking', 'GKPositioning', 'GKReflexes']]
+#training_dataset = training_dataset[["Age", "Overall", "Potential"]]
 
 #training_dataset = training_dataset[['Age', 'Overall', 'Potential', 'Special', 'LS', 'ST', 'RS', 'LW', 'LF', 'CF', 'RF', 'RW', 'LAM', 'CAM', 'RAM', 'LM', 'LCM', 'CM', 'RCM', 'RM', 'LWB', 'LDM', 'CDM', 'RDM', 'RWB', 'LB', 'LCB', 'CB', 'RCB', 'RB', 'Crossing', 'Finishing', 'HeadingAccuracy', 'ShortPassing', 'Volleys', 'Dribbling', 'Curve', 'FKAccuracy', 'LongPassing', 'BallControl', 'Acceleration', 'SprintSpeed', 'Agility', 'Reactions', 'Balance', 'ShotPower', 'Jumping', 'Stamina', 'Strength', 'LongShots', 'Aggression', 'Interceptions', 'Positioning', 'Vision', 'Penalties', 'Composure', 'Marking', 'StandingTackle', 'SlidingTackle', 'GKDiving', 'GKHandling', 'GKKicking', 'GKPositioning', 'GKReflexes']]
 
@@ -275,16 +298,122 @@ training_dataset.to_csv(r'externals/ready_training.csv')
 #showScatter(training_dataset)
 
 #print(testing_dataset.dtypes)
-print(training_cols)
-print(testing_cols)
+#print(training_cols)
+#print(testing_cols)
 
 print(training_dataset.shape)
 print(testing_dataset.shape)
 
-print(players_values)
-X = np.array(training_dataset.values)
-Y = np.array(players_values.values)
-clf = SVC(gamma='auto')
-clf.fit(X, Y)
+#players_values.to_csv(r'externals/players_values.csv')
 
-print(clf.predict([[18, 46, 64, 1031, 19, 20, 48, 31, 19, 23, 17, 17, 24, 32, 48, 49, 49, 40, 47, 21, 60, 55, 67, 17, 52, 38, 20, 22, 21, 33, 38, 44, 43, 15, 8, 10, 10, 7]]))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#testing_dataset = testing_dataset.astype(np.float)
+#training_dataset = training_dataset.astype(np.float)
+
+
+
+#print(players_values)
+X = np.array(training_dataset.values).astype(np.float)
+Y = np.array(players_values).astype(np.float)
+#clf = SVC(gamma='auto')
+#clf.fit(X, Y)
+#reg= LogisticRegression()
+#reg.fit(X, Y)
+#clf = LogisticRegression(random_state=0, solver='lbfgs', multi_class='multinomial').fit(X, Y)
+
+#print(X.shape)
+#print(Y.shape)
+#print(clf.predict([[30, 95, 95, 2200, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 29, 80, 80, 80, 80, 22, 31, 23, 7, 11, 15, 14, 11]]))
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.ensemble import GradientBoostingRegressor
+regressor = GradientBoostingRegressor() #DecisionTreeRegressor()
+regressor.fit(X, Y)
+
+print(testing_dataset.describe())
+
+predicted_prices = []
+x = 0;
+# iterate over rows with iterrows()
+for index, row in testing_dataset.iterrows():
+    # access data using column names
+    #print(index, row['delay'], row['distance'], row['origin'])
+    if(np.any(np.isnan(row))):
+        continue
+    #elif(np.any(np.isfinite(row))):
+    #    continue
+
+    predicted_prices.append(regressor.predict([[row['Age'], row['Overall'], row['Potential'], row['Special'],row['Crossing'], row['Finishing'], row['HeadingAccuracy'], row['ShortPassing'],
+                              row['Volleys'], row['Dribbling'], row['Curve'], row['FKAccuracy'], row['LongPassing'], row['BallControl'], row['Acceleration'], row['SprintSpeed'],
+                              row['Agility'], row['Reactions'], row['Balance'], row['ShotPower'], row['Jumping'], row['Stamina'], row['Strength'], row['LongShots'], row['Aggression'],
+                              row['Interceptions'], row['Positioning'], row['Vision'], row['Penalties'], row['Composure'], row['Marking'], row['StandingTackle'], row['SlidingTackle'],
+                              row['GKDiving'], row['GKHandling'], row['GKKicking'], row['GKPositioning'], row['GKReflexes']]]))
+    ++x
+
+label = ['predicted_price']
+result = pd.DataFrame.from_records(predicted_prices, columns=label)
+result.to_csv(r'externals/result.csv')
+
+
+#players_values = players_values.astype(np.float)
+#median_price = np.median(players_values)
+#mean_price = np.mean(players_values)
+#std_price = np.std(players_values)
+
+#print("Median = " + str(median_price))
+#print("Mean = " + str(mean_price))
+#print("Standard price = " + str(std_price))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#models = []
+#models.append(('LR', LogisticRegression(solver='liblinear', multi_class='ovr')))
+#models.append(('LDA', LinearDiscriminantAnalysis()))
+#models.append(('KNN', KNeighborsClassifier()))
+#models.append(('CART', DecisionTreeClassifier()))
+#models.append(('NB', GaussianNB()))
+#models.append(('SVM', SVC(gamma='auto')))
+# evaluate each model in turn
+# Test options and evaluation metric
+#seed = 7
+#scoring = 'accuracy'
+
+#results = []
+#names = []
+#for name, model in models:
+#	kfold = model_selection.KFold(n_splits=10, random_state=seed)
+#	cv_results = model_selection.cross_val_score(model, X, Y, cv=kfold, scoring=scoring)
+#	results.append(cv_results)
+#	names.append(name)
+#	msg = "%s: %f (%f)" % (name, cv_results.mean(), cv_results.std())
+#	print(msg)
