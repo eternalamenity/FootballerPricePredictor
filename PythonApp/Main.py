@@ -230,6 +230,14 @@ testing_dataset['RCB'] = testing_dataset['RCB'].map(lambda x: str(x)[:-2])
 
 
 #Changes for both datasets
+testing_dataset["Value"] = testing_dataset["Value"].replace({'\.[0-9]':''}, regex = True)
+testing_dataset["Value"] = testing_dataset["Value"].replace({'K':'000'}, regex = True)
+testing_dataset["Value"] = testing_dataset["Value"].replace({'M':'000000'}, regex = True)
+testing_dataset["Value"] = testing_dataset["Value"].replace({'\€':''}, regex = True)
+testing_dataset.drop(testing_dataset[testing_dataset["Value"] == 0].index, inplace = True)
+
+testing_dataset_values = testing_dataset[['Value']]
+testing_dataset_names = testing_dataset[['Name']]
 testing_dataset = testing_dataset.drop(columns="ID")
 testing_dataset = testing_dataset.drop(columns="Name")
 testing_dataset = testing_dataset.drop(columns="Photo")
@@ -242,6 +250,8 @@ testing_dataset = testing_dataset.drop(columns="Value")
 testing_dataset = testing_dataset.drop(columns="Wage")
 testing_dataset = testing_dataset.drop(columns="Unnamed: 0")
 
+
+training_dataset_for_comparing = training_dataset[['Name', 'Value']]
 training_dataset = training_dataset.drop(columns="ID")
 training_dataset = training_dataset.drop(columns="Name")
 training_dataset = training_dataset.drop(columns="Photo")
@@ -349,7 +359,7 @@ regressor.fit(X, Y)
 print(testing_dataset.describe())
 
 predicted_prices = []
-x = 0;
+x = 0
 # iterate over rows with iterrows()
 for index, row in testing_dataset.iterrows():
     # access data using column names
@@ -366,8 +376,41 @@ for index, row in testing_dataset.iterrows():
                               row['GKDiving'], row['GKHandling'], row['GKKicking'], row['GKPositioning'], row['GKReflexes']]]))
     ++x
 
+
+def f(row):
+    if ((int(row['OldMinusNew']) > 0 and int(row['PredictionCorrectness']) > 0) or (int(row['OldMinusNew']) < 0 and int(row['PredictionCorrectness']) < 0)):
+        val = 1
+    else:
+        val = -1
+    return val
+
+
+
+
 label = ['predicted_price']
 result = pd.DataFrame.from_records(predicted_prices, columns=label)
+result['Name'] = testing_dataset_names
+result['2019 values'] = testing_dataset_values
+
+
+
+#Put old values to new dataset with new values and predicted prices etc (new indexes made it harder)
+result = pd.merge(result, training_dataset_for_comparing, on="Name", how="left")
+
+indexNames = result[result['Value'] == None].index
+result.drop(indexNames , inplace=True)
+
+result['OldMinusNew'] = result['Value'].astype(float) - result['2019 values'].astype(float)
+result['OldMinusPredicted'] = result['Value'].astype(float) - result['predicted_price'].astype(float)
+#result['PredictionCorrectness'] = np.where((result.OldMinusNew > 0 and result.PredictionCorrectness > 0) or (result.OldMinusNew < 0 and result.PredictionCorrectness < 0),'X',df.c3)
+#result['PredictionCorrectness'] = result['PredictionCorrectness'].apply(lambda x: 'True' if ((result.OldMinusNew > 0 and result.PredictionCorrectness > 0) or (result.OldMinusNew < 0 and result.PredictionCorrectness < 0)) else 'False')
+#result['PredictionCorrectness'] = result.apply(f, axis=1)
+result.loc[(result['OldMinusNew'] > 0) & (result['OldMinusPredicted'] > 0), 'PredictionCorrectness'] = 1
+result.loc[(result['OldMinusNew'] < 0) & (result['OldMinusPredicted'] < 0), 'PredictionCorrectness'] = 1
+result.loc[(result['OldMinusNew'] > 0) & (result['OldMinusPredicted'] < 0), 'PredictionCorrectness'] = 0
+result.loc[(result['OldMinusNew'] < 0) & (result['OldMinusPredicted'] > 0), 'PredictionCorrectness'] = 0
+
+
 result.to_csv(r'externals/result.csv')
 
 
@@ -383,6 +426,7 @@ result.to_csv(r'externals/result.csv')
 
 
 
+#Jeśli F > 0 i G > 0 || F < 0 i G < 0 = TRUE
 
 
 
