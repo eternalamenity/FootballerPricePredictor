@@ -402,16 +402,28 @@ result.drop(indexNames , inplace=True)
 
 result['OldMinusNew'] = result['Value'].astype(float) - result['2019 values'].astype(float)
 result['OldMinusPredicted'] = result['Value'].astype(float) - result['predicted_price'].astype(float)
-#result['PredictionCorrectness'] = np.where((result.OldMinusNew > 0 and result.PredictionCorrectness > 0) or (result.OldMinusNew < 0 and result.PredictionCorrectness < 0),'X',df.c3)
-#result['PredictionCorrectness'] = result['PredictionCorrectness'].apply(lambda x: 'True' if ((result.OldMinusNew > 0 and result.PredictionCorrectness > 0) or (result.OldMinusNew < 0 and result.PredictionCorrectness < 0)) else 'False')
-#result['PredictionCorrectness'] = result.apply(f, axis=1)
 result.loc[(result['OldMinusNew'] > 0) & (result['OldMinusPredicted'] > 0), 'PredictionCorrectness'] = 1
 result.loc[(result['OldMinusNew'] < 0) & (result['OldMinusPredicted'] < 0), 'PredictionCorrectness'] = 1
 result.loc[(result['OldMinusNew'] > 0) & (result['OldMinusPredicted'] < 0), 'PredictionCorrectness'] = 0
 result.loc[(result['OldMinusNew'] < 0) & (result['OldMinusPredicted'] > 0), 'PredictionCorrectness'] = 0
 
-
 result.to_csv(r'externals/result.csv')
+
+# Get a bool series representing which row satisfies the condition i.e. True for
+# row in which value of 'Age' column is more than 30
+seriesObj = result.apply(lambda x: True if x['PredictionCorrectness'] == 1.0 else False , axis=1)
+numOfCorrectPrediction = len(seriesObj[seriesObj == True].index)
+print('Number of Rows in dataframe in which prediction was correct is : ', numOfCorrectPrediction)
+
+
+seriesObject = result.apply(lambda x: True if x['PredictionCorrectness'] == 0.0 else False , axis=1)
+numOfNotCorrectPrediction = len(seriesObject[seriesObject == True].index)
+print('Number of Rows in dataframe in which prediction was NOT correct is : ', numOfNotCorrectPrediction)
+
+
+print('Number of Rows in dataframe : ' , numOfCorrectPrediction + numOfNotCorrectPrediction)
+
+
 
 
 #players_values = players_values.astype(np.float)
